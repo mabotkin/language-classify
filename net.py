@@ -6,9 +6,10 @@ from time import time
 # global constants
 MAX_WORD_LENGTH = 15
 LANGS = ["spanish","french"]
-TRAIN_RATE = 0.8
-ITERATIONS = 10000
+TRAIN_RATE = 0.7
+ITERATIONS = 1000
 BATCH_SIZE = 100
+STDDEV = 0.1
 
 NUM_LANGS = len(LANGS)
 DICTS = {}
@@ -37,24 +38,26 @@ def batch(lang, num):
 
 # define variables
 x = tf.placeholder(tf.float32,[None,MAX_WORD_LENGTH])
-W = tf.Variable(tf.zeros([MAX_WORD_LENGTH,NUM_LANGS]))
-b = tf.Variable(tf.zeros([NUM_LANGS]))
+#W = tf.Variable(tf.zeros([MAX_WORD_LENGTH,NUM_LANGS]))
+W = tf.Variable(tf.truncated_normal([MAX_WORD_LENGTH,NUM_LANGS],stddev=STDDEV), trainable=True)
+#b = tf.Variable(tf.zeros([NUM_LANGS]))
+b = tf.Variable(tf.truncated_normal([NUM_LANGS],stddev=STDDEV), trainable=True)
 
 # define net
 y = tf.nn.softmax(tf.matmul(x, W) + b)
+#y = (tf.matmul(x, W) + b)
 y_ = tf.placeholder(tf.float32, [None, NUM_LANGS])
 
 # define error + training
 cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=y))
+#cross_entropy = tf.reduce_mean(-tf.reduce_sum(y_ * tf.log(y), reduction_indices=[1]))
 train_step = tf.train.GradientDescentOptimizer(TRAIN_RATE).minimize(cross_entropy)
 
 # actually do the net
-init = tf.global_variables_initializer()
-
 sess = tf.InteractiveSession()
-sess.run(init)
+init = tf.global_variables_initializer().run()
 
-for i in range(ITERATIONS):
+for k in range(ITERATIONS):
 	together = []
 	for i in range(NUM_LANGS):
 		bat = batch(i,BATCH_SIZE)
@@ -70,6 +73,8 @@ for i in range(ITERATIONS):
 		tog_y.append(tmp)
 	tog_x = np.matrix(tog_x)
 	tog_y = np.matrix(tog_y)
+	print tog_x.shape
+	print tog_y.shape
 	sess.run(train_step, feed_dict={x: tog_x, y_: tog_y})
 
 correct_prediction = tf.equal(tf.argmax(y,1), tf.argmax(y_,1))
