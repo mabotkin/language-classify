@@ -7,7 +7,7 @@ from time import time
 MAX_WORD_LENGTH = 15
 LANGS = ["spanish","french"]
 TRAIN_RATE = 0.8
-ITERATIONS = 1000
+ITERATIONS = 10000
 BATCH_SIZE = 100
 
 NUM_LANGS = len(LANGS)
@@ -21,7 +21,7 @@ for i in range(len(LANGS)):
 	for j in range(len(fin)):
 		tmp = []
 		for k in fin[j]:
-			tmp.append(ord(k))
+			tmp.append(float(ord(k)))
 		if len(tmp) > MAX_WORD_LENGTH:
 			# truncate if too long
 			tmp = tmp[0:MAX_WORD_LENGTH]
@@ -74,6 +74,7 @@ for i in range(ITERATIONS):
 
 correct_prediction = tf.equal(tf.argmax(y,1), tf.argmax(y_,1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+ans = y#tf.argmax(y,1)
 
 together = []
 for i in range(NUM_LANGS):
@@ -93,3 +94,20 @@ tog_y = np.matrix(tog_y)
 print "Accuracy: " + str(sess.run(accuracy, feed_dict={x: tog_x, y_: tog_y}))
 toc = time()
 print "Time Elapsed: " + str(toc-tic) + " seconds"
+
+while True:
+	print "Enter Word: "
+	word = raw_input()
+	tmp = []
+	for k in word:
+		tmp.append(float(ord(k)))
+	if len(tmp) > MAX_WORD_LENGTH:
+		# truncate if too long
+		tmp = tmp[0:MAX_WORD_LENGTH]
+	else:
+		for n in range(len(tmp),MAX_WORD_LENGTH):
+			# pad if too short
+			tmp.append(0)
+	tmp = np.matrix(tmp)
+	#print LANGS[sess.run(ans,feed_dict={x: tmp})[0]]
+	print sess.run(ans,feed_dict={x: tmp})
