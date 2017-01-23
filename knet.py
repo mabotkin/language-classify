@@ -7,10 +7,8 @@ from time import time
 # global constants
 MAX_WORD_LENGTH = 15
 LANGS = ["spanish","french"]
-TRAIN_RATE = 0.7
 ITERATIONS = 1000
 BATCH_SIZE = 100
-STDDEV = 0.1
 
 random.seed(0)
 
@@ -45,7 +43,9 @@ X = []
 Y = []
 for i in TOT:
 	X.append(i[0])
-	Y.append(i[1])
+	correct = [0.0 for j in range(NUM_LANGS)]
+	correct[i[1]] = 1.0
+	Y.append(np.array(correct))
 X = np.array(X)
 Y = np.array(Y)
 
@@ -53,7 +53,7 @@ Y = np.array(Y)
 model = Sequential()
 model.add(Dense(MAX_WORD_LENGTH, input_dim=MAX_WORD_LENGTH, init='uniform', activation='relu'))
 model.add(Dense(MAX_WORD_LENGTH+1, init='uniform', activation='relu'))
-model.add(Dense(1, init='uniform', activation='sigmoid'))
+model.add(Dense(NUM_LANGS, init='uniform', activation='sigmoid'))
 
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 
@@ -69,5 +69,9 @@ while True:
 	print "Enter word:"
 	word = raw_input()
 	out = model.predict(np.array(convWord(word)).reshape((1,MAX_WORD_LENGTH)))
-	print out
+	out = out[0]
+	for i in range(len(out)):
+		out[i] = (1-out[i],LANGS[i])
+	out = sorted(out)
+
 	#print LANGS[out]
