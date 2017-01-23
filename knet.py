@@ -20,21 +20,24 @@ TOT = []
 
 tic = time()
 
+def convWord(word):
+	tmp = []
+	for k in word:
+		tmp.append(float(ord(k)))
+	if len(tmp) > MAX_WORD_LENGTH:
+		# truncate if too long
+		tmp = tmp[0:MAX_WORD_LENGTH]
+	else:
+		for n in range(len(tmp),MAX_WORD_LENGTH):
+			# pad if too short
+			tmp.append(0)
+	return tmp
+
 # read in data
 for i in range(len(LANGS)):
 	fin = open("data/" + LANGS[i] + ".txt").read().splitlines()
 	for j in range(len(fin)):
-		tmp = []
-		for k in fin[j]:
-			tmp.append(float(ord(k)))
-		if len(tmp) > MAX_WORD_LENGTH:
-			# truncate if too long
-			tmp = tmp[0:MAX_WORD_LENGTH]
-		else:
-			for n in range(len(tmp),MAX_WORD_LENGTH):
-				# pad if too short
-				tmp.append(0)
-		fin[j] = np.array(tmp)
+		fin[j] = np.array(convWord(fin[j]))
 		TOT.append((fin[j],i))
 	DICTS[i] = fin
 random.shuffle(TOT)
@@ -61,3 +64,10 @@ print("%s: %.2f%%" % (model.metrics_names[1], scores[1]*100))
 
 toc = time()
 print "Time Elapsed: " + str(toc-tic) + " seconds."
+
+while True:
+	print "Enter word:"
+	word = raw_input()
+	out = model.predict(np.array(convWord(word)).reshape((1,MAX_WORD_LENGTH)))
+	print out
+	#print LANGS[out]
