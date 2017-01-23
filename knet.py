@@ -8,7 +8,10 @@ from time import time
 MAX_WORD_LENGTH = 15
 LANGS = ["spanish","french"]
 ITERATIONS = 1000
-BATCH_SIZE = 100
+BATCH_SIZE = 32
+NUM_TOP = 3
+
+VERBOSE = True
 
 random.seed(0)
 
@@ -53,11 +56,13 @@ Y = np.array(Y)
 model = Sequential()
 model.add(Dense(MAX_WORD_LENGTH, input_dim=MAX_WORD_LENGTH, init='uniform', activation='relu'))
 model.add(Dense(MAX_WORD_LENGTH+1, init='uniform', activation='relu'))
+model.add(Dense(MAX_WORD_LENGTH, init='uniform', activation='relu'))
+model.add(Dense(MAX_WORD_LENGTH, init='uniform', activation='relu'))
 model.add(Dense(NUM_LANGS, init='uniform', activation='sigmoid'))
 
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 
-model.fit(X,Y, nb_epoch=ITERATIONS, batch_size=BATCH_SIZE)
+model.fit(X,Y, nb_epoch=ITERATIONS, batch_size=BATCH_SIZE,verbose=VERBOSE)
 
 scores = model.evaluate(X,Y)
 print("%s: %.2f%%" % (model.metrics_names[1], scores[1]*100))
@@ -70,8 +75,9 @@ while True:
 	word = raw_input()
 	out = model.predict(np.array(convWord(word)).reshape((1,MAX_WORD_LENGTH)))
 	out = out[0]
+	tmp = []
 	for i in range(len(out)):
-		out[i] = (1-out[i],LANGS[i])
-	out = sorted(out)
-
-	#print LANGS[out]
+		tmp.append((1-out[i],LANGS[i]))
+	out = sorted(tmp,reverse=True)
+	for i in range(min(NUM_TOP,NUM_LANGS)):
+		print out[i][1] + ": " + str(100*out[i][0]) + "%"
