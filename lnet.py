@@ -8,8 +8,8 @@ from time import time
 
 # global constants
 MAX_WORD_LENGTH = 15
-LANGS = ["spanish","french"]
-ITERATIONS = 100
+LANGS = ["english","spanish"]
+ITERATIONS = 10
 BATCH_SIZE = 32
 NUM_TOP = 3
 DUMP_FILE_NAME = "model.h5"
