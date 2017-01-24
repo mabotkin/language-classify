@@ -8,7 +8,7 @@ from time import time
 
 # global constants
 MAX_WORD_LENGTH = 15
-LANGS = ["english","spanish"]
+LANGS = ["english","french","spanish"]
 ITERATIONS = 10
 BATCH_SIZE = 32
 NUM_TOP = 3
@@ -70,7 +70,7 @@ if regen:
 	model.add(Dense(MAX_WORD_LENGTH, init='uniform', activation='relu'))
 	model.add(Dense(NUM_LANGS, init='uniform', activation='sigmoid'))
 
-	model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+	model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
 	model.fit(X,Y, nb_epoch=ITERATIONS, batch_size=BATCH_SIZE,verbose=VERBOSE)
 
@@ -93,4 +93,4 @@ while True:
 		tmp.append((out[i],LANGS[i]))
 	out = sorted(tmp,reverse=True)
 	for i in range(min(NUM_TOP,NUM_LANGS)):
-		print out[i][1] + ": " + str(100*out[i][0]) + "%"
+		print out[i][1] + ": " + str(100*(out[i][0])) + "%"
