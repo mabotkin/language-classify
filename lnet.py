@@ -92,5 +92,8 @@ while True:
 	for i in range(len(out)):
 		tmp.append((out[i],LANGS[i]))
 	out = sorted(tmp,reverse=True)
+	tot = 0
+	for i in out:
+		tot += i[0]
 	for i in range(min(NUM_TOP,NUM_LANGS)):
-		print out[i][1] + ": " + str(100*(out[i][0])) + "%"
+		print out[i][1] + ": " + str(100*(out[i][0]/tot)) + "%"
