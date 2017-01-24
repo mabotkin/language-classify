@@ -1,5 +1,6 @@
 from keras.models import Sequential, load_model
-from keras.layers import Dense
+from keras.layers import Dense, LSTM
+from keras.layers.embeddings import Embedding
 import numpy as np
 import os
 import random
@@ -8,10 +9,11 @@ from time import time
 # global constants
 MAX_WORD_LENGTH = 15
 LANGS = ["spanish","french"]
-ITERATIONS = 1000
+ITERATIONS = 10
 BATCH_SIZE = 32
 NUM_TOP = 3
 DUMP_FILE_NAME = "model.h5"
+LSTM_NUM = 100
 
 VERBOSE = True
 
@@ -36,7 +38,7 @@ def convWord(word):
 
 regen = True
 if os.path.isfile("model.h5"):
-	print "Use existing data? [y/n]"
+	print "Use existing neural network? [y/n]"
 	inp = raw_input()
 	if inp != "n":
 		regen = False
@@ -63,9 +65,8 @@ if regen:
 
 	#generate net
 	model = Sequential()
-	model.add(Dense(MAX_WORD_LENGTH, input_dim=MAX_WORD_LENGTH, init='uniform', activation='relu'))
-	model.add(Dense(MAX_WORD_LENGTH+1, init='uniform', activation='relu'))
-	model.add(Dense(MAX_WORD_LENGTH, init='uniform', activation='relu'))
+	model.add(Embedding(len(X),MAX_WORD_LENGTH,input_length=MAX_WORD_LENGTH))
+	model.add(LSTM(LSTM_NUM))
 	model.add(Dense(MAX_WORD_LENGTH, init='uniform', activation='relu'))
 	model.add(Dense(NUM_LANGS, init='uniform', activation='sigmoid'))
 
@@ -89,7 +90,7 @@ while True:
 	out = out[0]
 	tmp = []
 	for i in range(len(out)):
-		tmp.append((1-out[i],LANGS[i]))
+		tmp.append((out[i],LANGS[i]))
 	out = sorted(tmp,reverse=True)
 	for i in range(min(NUM_TOP,NUM_LANGS)):
 		print out[i][1] + ": " + str(100*out[i][0]) + "%"

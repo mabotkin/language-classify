@@ -8,7 +8,7 @@ from time import time
 # global constants
 MAX_WORD_LENGTH = 15
 LANGS = ["spanish","french"]
-ITERATIONS = 1000
+ITERATIONS = 100
 BATCH_SIZE = 32
 NUM_TOP = 3
 DUMP_FILE_NAME = "model.h5"
@@ -65,8 +65,8 @@ if regen:
 	model = Sequential()
 	model.add(Dense(MAX_WORD_LENGTH, input_dim=MAX_WORD_LENGTH, init='uniform', activation='relu'))
 	model.add(Dense(MAX_WORD_LENGTH+1, init='uniform', activation='relu'))
-	model.add(Dense(MAX_WORD_LENGTH, init='uniform', activation='relu'))
-	model.add(Dense(MAX_WORD_LENGTH, init='uniform', activation='relu'))
+	#model.add(Dense(MAX_WORD_LENGTH, init='uniform', activation='relu'))
+	#model.add(Dense(MAX_WORD_LENGTH, init='uniform', activation='relu'))
 	model.add(Dense(NUM_LANGS, init='uniform', activation='sigmoid'))
 
 	model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
